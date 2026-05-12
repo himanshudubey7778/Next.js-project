@@ -26,7 +26,7 @@ export default function RootLayout({ children }) {
               textDecoration: "none",
             }}
           >
-            Sultanpur-Amazon
+            Tejjora-Shops
           </Link>
 
           <div
@@ -77,7 +77,7 @@ export default function RootLayout({ children }) {
             marginTop: "50px",
           }}
         >
-          <p>© 2026, Sultanpur-Amazon Tech Project | Powered by Next.js</p>
+          <p>© 2026, Tejjora-shops Tech Project | Powered by Next.js</p>
         </footer>
       </body>
     </html>

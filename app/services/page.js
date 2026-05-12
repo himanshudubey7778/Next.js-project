@@ -7,7 +7,7 @@ const Services = () => {
       <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginTop: '30px', flexWrap: 'wrap' }}>
         <div style={{ width: '250px', padding: '20px', border: '1px solid #ddd', borderRadius: '10px' }}>
           <h3>🚀 Fast Delivery</h3>
-          <p>Get your products delivered in Sultanpur within 24 hours.</p>
+          <p>Get your products delivered in lucknow within 24 hours.</p>
         </div>
         <div style={{ width: '250px', padding: '20px', border: '1px solid #ddd', borderRadius: '10px' }}>
           <h3>🛡️ Secure Payment</h3>
