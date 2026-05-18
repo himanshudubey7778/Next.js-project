@@ -1,45 +1,55 @@
-'use client'; // Client side interactivity of important 
+"use client";
+import { useState } from 'react';
 
-import React, { useState } from 'react';
-import Link from 'next/link'; // Links ke liye
-
-const LoginPage = () => {
-  // 1. State setup (Jo Sir ne WhatsApp screenshot mein dikhaya)
+export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false); // Toggle logic
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Agar Register mode hai toh register API par bhejo, nahi toh login par
+    const endpoint = isRegistering ? '/api/register' : '/api/login';
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+    alert(data.message || data.error);
+  };
 
   return (
-    <div style={{ padding: '20px' }}>
-      {/* 2. Navigation Links (Jo Sir ke browser wale screenshot mein upar dikh rahe hain) */}
-      <nav style={{ marginBottom: '20px' }}>
-        <Link href="/user" style={{ color: 'purple', marginRight: '15px' }}>Go to User Page</Link>
-        <Link href="/products" style={{ color: 'purple' }}>Go to Products Page</Link>
-      </nav>
-
-      <h1>Welcome to login page</h1>
-
-      {/* 3. Form ( logic: value + onChange) */}
-      <form>
+    <div style={{ padding: "50px", textAlign: "center" }}>
+      <h2>{isRegistering ? "Create Account (Register)" : "Welcome to Login Page"}</h2>
+      
+      <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
         <input 
           type="text" 
-          placeholder="Enter Username" 
           value={username} 
           onChange={(e) => setUsername(e.target.value)} 
-          style={{ marginRight: '10px', padding: '5px' }}
+          placeholder="Enter Username" 
+          required 
         />
-        
         <input 
           type="password" 
-          placeholder="Enter password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ marginRight: '10px', padding: '5px' }}
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Enter Password" 
+          required 
         />
-        
-        <button type="button" style={{ padding: '5px 15px' }}>Login</button>
+        <button type="submit">{isRegistering ? "Register" : "Login"}</button>
       </form>
+
+      <button 
+        onClick={() => setIsRegistering(!isRegistering)} 
+        style={{ marginTop: "20px", background: "none", border: "none", color: "blue", cursor: "pointer" }}
+      >
+        {isRegistering ? "Already have an account? Login" : "Don't have an account? Register here"}
+      </button>
     </div>
   );
-};
-
-export default LoginPage;
+}

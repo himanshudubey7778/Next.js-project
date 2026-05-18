@@ -1,21 +1,26 @@
+import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/lib/models/User';
-import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    await connectDB(); // Database se connect karo
+    await connectDB(); // Database line-up karo
     const { username, password } = await request.json();
 
-    // Database mein user dhoondo
-    const user = await User.findOne({ username, password });
+    // Check karo database mein user hai ya nahi
+    const userExists = await User.findOne({ username });
 
-    if (user) {
-      return NextResponse.json({ message: "Login Successful", user }, { status: 200 });
-    } else {
-      return NextResponse.json({ message: "Invalid Credentials" }, { status: 401 });
+    if (!userExists) {
+      return NextResponse.json({ error: "User nahi mila! Pehle register karo." }, { status: 404 });
     }
+
+    if (userExists.password !== password) {
+      return NextResponse.json({ error: "Galat password, check karo!" }, { status: 401 });
+    }
+
+    return NextResponse.json({ message: "Tejjora-Shops mein aapka swagat hai! 🚀" }, { status: 200 });
+
   } catch (error) {
-    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Server framework error!" }, { status: 500 });
   }
 }
