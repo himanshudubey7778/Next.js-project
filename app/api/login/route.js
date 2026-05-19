@@ -1,61 +1,86 @@
 import { NextResponse } from 'next/server';
-import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 
-// MongoDB Cloud Connection Utility
+// MongoDB Connection Switch
 const connectDB = async () => {
   if (mongoose.connections[0].readyState) return;
   await mongoose.connect(process.env.MONGODB_URI);
 };
 
-// PUT Request Handler - Product ko ID se Update karne ke liye
-export async function PUT(request, { params }) {
+/* =======================================================
+   1. POST METHOD - Create/Add New Product (Sir's Standard)
+   ======================================================= */
+export async function POST(request) {
   try {
-    await connectDB(); // Cloud database connect karo
-    
-    // URL se dynamic product ID nikalen
-    const { id } = params; 
-    
-    // Postman/Thunder Client se bheja gaya body data read karo
+    await connectDB();
     const body = await request.json();
 
-    // Sir ka Logic: Mongoose database context ke zariye collection ko targets karo
+    const db = mongoose.connection.db;
+
+    // Direct collection injection
+    const newProduct = await db.collection("products").insertOne({
+      ...body,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    return NextResponse.json(
+      { 
+        success: true, 
+        Message: "Product Created Successfully! 🛒", 
+        id: newProduct.insertedId 
+      }, 
+      { status: 201 }
+    );
+
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+/* =======================================================
+   2. PUT METHOD - Update Existing Product (Today's Class Logic)
+   ======================================================= */
+export async function PUT(request, { params }) {
+  try {
+    await connectDB();
+    
+    // Dynamic URL se product ID capture karein
+    const { id } = params; 
+    const body = await request.json();
+
     const db = mongoose.connection.db;
     
-    // MongoDB updates with ObjectId matching and $set operator
+    // Sir ka Logic: ObjectId matching with $set operator
     const updateResult = await db.collection("products").updateOne(
       { _id: new mongoose.Types.ObjectId(id) },
       { 
         $set: { 
           ...body, 
-          updatedAt: new Date() // Industry standard update timestamp
+          updatedAt: new Date() // Audit timestamp
         } 
       }
     );
 
-    // Agar koi matching product nahi mila
     if (updateResult.matchedCount === 0) {
       return NextResponse.json(
-        { success: false, message: "Product nahi mila! Check correct ObjectId." },
+        { success: false, Message: "Product nahi mila! Check ID." },
         { status: 404 }
       );
     }
 
-    // Success Response (Sir ka Format)
+    // Success response format exactly like sir's dashboard
     return NextResponse.json(
       { 
         success: true, 
-        message: "Document Updated Successfully in Tejjora-Shops! 🚀",
-        details: updateResult 
+        Message: "Document Updated Successfully! 🚀",
+        matched: updateResult.matchedCount,
+        modified: updateResult.modifiedCount
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error("Database Update Error:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal Backend Error!" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
