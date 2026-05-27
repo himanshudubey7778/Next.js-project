@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import { auth } from '@/lib/auth'; // Better-Auth core backend file
+import { auth } from '../../../lib/auth'; // Better-Auth core backend file
 
 // MongoDB Cloud Connection Utility
 const connectDB = async () => {
@@ -38,7 +38,7 @@ export async function POST(request) {
     // If user validation fail is doing
     if (!session) {
       return NextResponse.json(
-        { success: false, Message: "Wrong Email ya Password! Access Denied." },
+        { success: false, Message: "Wrong Email Any Password! Access Denied." },
         { status: 401 }
       );
     }
