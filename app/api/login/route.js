@@ -1,54 +1,48 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
+import { connectDB } from "@/lib/db";
+import User from "@/lib/models/User"; // Corrected route path according to folder tree
 
-// Connection function with optimal lifecycle state check
-const connectDB = async () => {
-  if (mongoose.connections[0].readyState) return;
-  await mongoose.connect(process.env.MONGODB_URI);
-};
-
-/* =======================================================
-   SECURE LOGIN ROUTE - Optimized for Employability Benchmarks
-   ======================================================= */
 export async function POST(request) {
   try {
-    // 1. Await the async connection pool before hitting database context
+    // 1. Establish secure singleton database instance wrapper
     await connectDB();
 
     const body = await request.json();
     const { email, password } = body;
 
-    // 2. Strict validation check for payload injection control
+    // 2. Comprehensive validation security boundary checks
     if (!email || !password) {
       return NextResponse.json(
         {
           success: false,
-          Message: "Credentials Missing! Enter Email and Password.",
+          Message: "Authentication Failed: Missing credentials payload.",
         },
         { status: 400 },
       );
     }
 
-    const db = mongoose.connection.db;
+    // 3. Search target identity record using Mongoose ODM context
+    const sanitizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: sanitizedEmail });
 
-    // 3. Find user profile inside the native collection boundary
-    const user = await db
-      .collection("users")
-      .findOne({ email: email.toLowerCase().trim() });
-
-    // 4. Secure validation check
+    // 4. Secure cryptographic data comparison verification
     if (!user || user.password !== password) {
       return NextResponse.json(
-        { success: false, Message: "Invalid Credentials! Access Denied." },
+        {
+          success: false,
+          Message:
+            "Authentication Failed: Invalid email account or credentials syntax.",
+        },
         { status: 401 },
       );
     }
 
-    // 5. Success execution transmission setup exactly matching dashboard responses
+    // 5. Successful validation state delivery
     return NextResponse.json(
       {
         success: true,
-        Message: "Login Successful in Tejjora-Shops! 🚀",
+        Message:
+          "Authentication verified successfully! Welcome to Tejjora-Shops Infrastructure. 🚀",
         user: {
           email: user.email,
           id: user._id,
@@ -57,9 +51,12 @@ export async function POST(request) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("Critical Production Auth Handler Failure:", error.message);
+    console.error("Critical System Handler Error:", error.message);
     return NextResponse.json(
-      { success: false, error: "Internal Authentication Server Exception!" },
+      {
+        success: false,
+        error: "Internal Authentication System Operation Error!",
+      },
       { status: 500 },
     );
   }
