@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import User from "@/lib/models/User"; // Corrected route path according to folder tree
+import { NextResponse } from 'next/server';
+import { connectDB } from '@/lib/db'; 
+import User from '@/lib/models/User'; // Matches your exact nested structure inside lib/
 
 export async function POST(request) {
   try {
